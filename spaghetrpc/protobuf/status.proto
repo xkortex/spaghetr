@@ -1,0 +1,23 @@
+syntax = "proto3";
+package status;
+
+service Status {
+    rpc GetTime (NullRequest) returns (TimeReply) {}
+    rpc GetStatus (NullRequest) returns (StatusReply) {}
+}
+
+// Empty Request Message
+message NullRequest {
+}
+
+// The response message containing the time
+message TimeReply {
+    string message = 1;
+}
+// The response message containing the status
+message StatusReply {
+    string message = 1;
+    string host = 2;
+    string ip = 3;
+    string fqdn = 4;
+}

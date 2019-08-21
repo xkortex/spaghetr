@@ -1,0 +1,50 @@
+syntax = "proto3";
+package status;
+
+service Subprocess {
+    rpc Run (ArgsRequest) returns (StdReply) {}
+    rpc Popen (ArgsRequest) returns (StdReply) {}
+
+}
+
+// nullable string
+message NString {
+    string val = 1;
+}
+
+// nullable double
+message NDouble {
+    double val = 1;
+}
+
+
+// Request modelling a call to some POSIX process
+message ArgsRequest {
+    repeated string args = 1;
+    NString input = 2;
+    sint64 bufsize = 3;
+    NString executable = 4;
+    // work in progress
+//    string stdin = 5;
+    bool shell = 6;
+    NString cwd = 7;
+    map<string, string> env = 8;
+    NDouble timeout = 9;
+
+
+}
+
+// Basic response from a process
+message StdReply {
+    // exit code
+    sint32 returncode = 1;
+
+    // PID of process
+    sint32 pid = 2;
+
+    // output of stdout
+    bytes stdout = 3;
+
+    // output of stderr
+    bytes stderr = 4;
+}
