@@ -11,7 +11,7 @@ from spaghetr.util import parse_nullable
 
 
 HOST = 'localhost'
-PORT = 50051
+PORT = 45654
 
 
 def run_client(host=None, port=PORT, cmd=None):

@@ -15,7 +15,7 @@ from spaghetr.protos import status_pb2, status_pb2_grpc
 from spaghetr.protos import basic_subproc_pb2, basic_subproc_pb2_grpc
 from spaghetr.util import parse_nullable
 
-
+DEFAULT_PORT = 45654
 
 class Status(status_pb2_grpc.StatusServicer):
     def GetStatus(self, request, context):
@@ -50,12 +50,31 @@ class Subprocesser(basic_subproc_pb2_grpc.SubprocessServicer):
         return result
 
 
-def serve():
+def arg_parser():
+    import argparse
+    parser = argparse.ArgumentParser(description="""Run subprocess as RPC""")
+
+    parser.add_argument(
+        "-H", "--host", default=None, action="store", type=str,
+        help="Host to run RPC service on")
+    parser.add_argument(
+        "-P", "--port", default=DEFAULT_PORT, action="store", type=str,
+        help="start of port range to run RPC service on")
+    return parser
+
+
+def serve(host=None, port=DEFAULT_PORT):
+    if host is None:
+        host = '[::]'
+
+    hostport = ':'.join([host, str(port)])
+
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     status_pb2_grpc.add_StatusServicer_to_server(Status(), server)
     basic_subproc_pb2_grpc.add_SubprocessServicer_to_server(
         Subprocesser(), server)
-    server.add_insecure_port('[::]:50051')
+    server.add_insecure_port(hostport)
+    vprint('starting server on {}'.format(hostport))
     server.start()
     try:
         while True:
@@ -65,4 +84,5 @@ def serve():
 
 
 if __name__ == '__main__':
-    serve()
+    args = arg_parser().parse_args()
+    serve(args.host, args.port)

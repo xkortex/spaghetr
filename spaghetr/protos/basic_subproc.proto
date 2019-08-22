@@ -1,5 +1,5 @@
 syntax = "proto3";
-package status;
+package basic_subproc;
 
 service Subprocess {
     rpc Run (ArgsRequest) returns (StdReply) {}
