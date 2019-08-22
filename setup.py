@@ -63,6 +63,7 @@ print('<Packages>:', packages)
 # todo: fully test unified dependencies
 deps = [
     'grpcio>=1.22',
+    'protobuf',
     'vprint'
 ]
 
