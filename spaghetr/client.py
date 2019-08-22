@@ -5,9 +5,9 @@ import shlex
 import grpc
 from vprint import vprint
 
-from spaghetrpc.protobuf import status_pb2, status_pb2_grpc
-from spaghetrpc.protobuf import basic_subproc_pb2, basic_subproc_pb2_grpc
-from spaghetrpc.util import parse_nullable
+from spaghetr.protos import status_pb2, status_pb2_grpc
+from spaghetr.protos import basic_subproc_pb2, basic_subproc_pb2_grpc
+from spaghetr.util import parse_nullable
 
 
 HOST = 'localhost'

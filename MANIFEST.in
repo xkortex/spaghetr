@@ -1,1 +1,1 @@
-include spaghetrpc/protobuf/*
+include spaghetr/protos/*
