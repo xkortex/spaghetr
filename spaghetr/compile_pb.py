@@ -77,6 +77,6 @@ def compile_protobufs(proto_path='pkgname/proto', *args):
 
 if __name__ == '__main__':
     import sys
-    # compile_protobufs(sys.argv[1], *sys.argv[2:])
-    pkgname = 'spaghetr'
-    compile_protobufs(os.path.join(pkgname, 'protos'))
+    compile_protobufs(sys.argv[1], *sys.argv[2:])
+    # pkgname = 'spaghetr'
+    # compile_protobufs(os.path.join(pkgname, 'protos'))

@@ -1,0 +1,52 @@
+syntax = "proto3";
+package aio_subproc;
+
+service AioSubprocess {
+    rpc PopenBasic (ArgsRequest) returns (stream StreamChunkOut) {}
+
+}
+
+// nullable string
+message NString {
+    string val = 1;
+}
+
+// nullable double
+message NDouble {
+    double val = 1;
+}
+
+// nullable sint
+message NSint32 {
+    sint32 val = 1;
+}
+
+// container for streamed output.
+// Perhaps I want to return a handle and read from that instead of returning
+// the stream, that way the process can be detached
+message StreamChunkOut {
+    NSint32 returncode = 1;
+    NSint32 pid = 2;
+    bytes stdout = 3;
+    bytes stderr = 4;
+
+}
+
+
+// Request modelling a call to some POSIX process
+message ArgsRequest {
+    repeated string args = 1;
+    NString input = 2;
+    sint64 bufsize = 3;
+    NString executable = 4;
+    // work in progress
+//    string stdin = 5;
+    bool shell = 6;
+    NString cwd = 7;
+    map<string, string> env = 8;
+    NDouble timeout = 9;
+
+
+}
+
+
