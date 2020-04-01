@@ -81,5 +81,6 @@ setup(
     data_files=data_files,
     include_package_data=True,
     extras_require={
+        'test_status': ['tqdm'],
     }
 )
