@@ -2,6 +2,7 @@
 
 # Protobufs, for now, add manually later
 *_pb2*
+*.pb.go
 
 # IDE specific
 .idea

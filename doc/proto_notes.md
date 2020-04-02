@@ -6,6 +6,8 @@ The following is some general observations I have made about the protobuf
 - Protoc is very, *very* particular. 
 - All of the target languages of protobuf are rather opinionated about packaging,
     in myriad conflicting ways
+- Protip: Arrange protobufs the way you would go files. I.e. the directory in which they
+    reside is the package. 
     
 ##### Some code chunks to try to understand packaging patterns as they are currently 
 Snippets:

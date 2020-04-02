@@ -1,5 +1,5 @@
 syntax = "proto3";
-package status;
+package protos;
 
 service Status {
     rpc GetTime (NullRequest) returns (TimeReply) {}

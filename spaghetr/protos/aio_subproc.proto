@@ -1,5 +1,5 @@
 syntax = "proto3";
-package aio_subproc;
+package protos;
 
 service AioSubprocess {
     rpc PopenBasic (ArgsRequest) returns (stream StreamChunkOut) {}
@@ -35,16 +35,17 @@ message StreamChunkOut {
 
 // Request modelling a call to some POSIX process
 message ArgsRequest {
-    repeated string args = 1;
-    NString input = 2;
-    sint64 bufsize = 3;
-    NString executable = 4;
+    string name = 1;
+    repeated string args = 2;
+    NString input = 3;
+    sint64 bufsize = 4;
+    NString executable = 5;
     // work in progress
-//    string stdin = 5;
-    bool shell = 6;
-    NString cwd = 7;
-    map<string, string> env = 8;
-    NDouble timeout = 9;
+    string stdin = 6;
+    bool shell = 7;
+    NString cwd = 8;
+    map<string, string> env = 9;
+    NDouble timeout = 10;
 
 
 }

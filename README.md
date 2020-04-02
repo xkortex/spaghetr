@@ -11,4 +11,7 @@ using the `compile_pb.py` functionality.
 
 To reverse this, 
 you can run `python setup.py develop --uninstall`, which seems wacky,
-but that is the nature of legacy dependency tools. 
+but that is the nature of legacy dependency tools.
+
+## Build go protos
+`protoc -I spaghetr/protos --go_out=plugins=grpc:spaghetr/protos/ spaghetr/protos/aio_subproc.proto` 
