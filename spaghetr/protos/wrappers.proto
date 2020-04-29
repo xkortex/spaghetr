@@ -1,0 +1,17 @@
+syntax = "proto3";
+package protos;
+
+// nullable string
+message NString {
+  string val = 1;
+}
+
+// nullable double
+message NDouble {
+  double val = 1;
+}
+
+// nullable sint
+message NSint32 {
+  sint32 val = 1;
+}

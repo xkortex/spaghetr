@@ -1,0 +1,21 @@
+syntax = "proto3";
+package protos;
+import "spaghetr/protos/wrappers.proto";
+
+
+// Request modelling a call to some POSIX process
+message ArgsRequest {
+    string name = 1;
+    repeated string args = 2;
+    NString input = 3;
+    sint64 bufsize = 4;
+    NString executable = 5;
+    // work in progress
+    string stdin = 6;
+    bool shell = 7;
+    NString cwd = 8;
+    map<string, string> env = 9;
+    NDouble timeout = 10;
+
+
+}

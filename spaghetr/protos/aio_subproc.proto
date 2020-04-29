@@ -1,25 +1,14 @@
 syntax = "proto3";
 package protos;
+import "spaghetr/protos/wrappers.proto";
+import "spaghetr/protos/process.proto";
 
 service AioSubprocess {
     rpc PopenBasic (ArgsRequest) returns (stream StreamChunkOut) {}
 
 }
 
-// nullable string
-message NString {
-    string val = 1;
-}
 
-// nullable double
-message NDouble {
-    double val = 1;
-}
-
-// nullable sint
-message NSint32 {
-    sint32 val = 1;
-}
 
 // container for streamed output.
 // Perhaps I want to return a handle and read from that instead of returning
@@ -33,21 +22,5 @@ message StreamChunkOut {
 }
 
 
-// Request modelling a call to some POSIX process
-message ArgsRequest {
-    string name = 1;
-    repeated string args = 2;
-    NString input = 3;
-    sint64 bufsize = 4;
-    NString executable = 5;
-    // work in progress
-    string stdin = 6;
-    bool shell = 7;
-    NString cwd = 8;
-    map<string, string> env = 9;
-    NDouble timeout = 10;
-
-
-}
 
 

@@ -1,5 +1,8 @@
 ## New, improved Python project gitignore. Now with more greebles!
 
+# junk
+**/command-line-arguments
+
 # Protobufs, for now, add manually later
 *_pb2*
 *.pb.go
