@@ -6,6 +6,11 @@ service Status {
     rpc GetStatus (NullRequest) returns (StatusReply) {}
 }
 
+//service Health {
+//  rpc Check(HealthCheckRequest) returns (HealthCheckResponse);
+//  rpc Watch(HealthCheckRequest) returns (stream HealthCheckResponse);
+//}
+
 // Empty Request Message
 message NullRequest {
 }
@@ -21,3 +26,16 @@ message StatusReply {
     string ip = 3;
     string fqdn = 4;
 }
+//
+//message HealthCheckRequest {
+//  string service = 1;
+//}
+//
+//message HealthCheckResponse {
+//  enum ServingStatus {
+//    UNKNOWN = 0;
+//    NOT_SERVING = 1;
+//    SERVING = 2;
+//  }
+//  ServingStatus status = 1;
+//}

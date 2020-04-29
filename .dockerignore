@@ -1,0 +1,6 @@
+Dockerfile
+*.df
+*.docker
+docker-compose.yml
+build/
+dist/
