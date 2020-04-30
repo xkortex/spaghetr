@@ -46,7 +46,7 @@ def run_status(host=None, port=PORT, cmd=None):
     hostport = ':'.join([host, str(port)])
     channel = grpc.insecure_channel(hostport)
     stub = status_pb2_grpc.StatusStub(channel)
-    response = stub.GetStatus(status_pb2.NullRequest())
+    response = stub.GetStatus(status_pb2.Empty())
     # print('Client received: {}'.format(response.message))
     return str(response)
 

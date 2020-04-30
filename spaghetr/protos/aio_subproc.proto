@@ -2,10 +2,13 @@ syntax = "proto3";
 package protos;
 import "spaghetr/protos/wrappers.proto";
 import "spaghetr/protos/process.proto";
+import "spaghetr/protos/status.proto";
 
 service AioSubprocess {
     rpc PopenBasic (ArgsRequest) returns (stream StreamChunkOut) {}
-
+    rpc GetStatus (Empty) returns (StatusReply) {}
+    rpc Check(HealthCheckRequest) returns (HealthCheckResponse);
+    rpc Watch(HealthCheckRequest) returns (stream HealthCheckResponse);
 }
 
 
