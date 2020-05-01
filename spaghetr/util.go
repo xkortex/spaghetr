@@ -1,6 +1,8 @@
 package spaghetr
 
-import "bytes"
+import (
+	"bytes"
+)
 
 // ScanLines is a split function for a Scanner that returns each line of
 // text, stripped of any trailing end-of-line marker. The returned line may

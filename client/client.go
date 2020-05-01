@@ -5,7 +5,11 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"github.com/xkortex/spaghetr/spaghetr"
+
+	//"github.com/xkortex/spaghetr/spaghetr"
 	"github.com/xkortex/spaghetr/spaghetr/protos"
+	"github.com/xkortex/vprint"
 	"google.golang.org/grpc"
 	"io"
 	"log"
@@ -15,6 +19,7 @@ import (
 
 var (
 	tls                = flag.Bool("tls", false, "Connection uses TLS if true, else plain TCP")
+	timeout            = flag.String("timeout", "5s", "Watchdog timeout (as time string, eg '300ms', '1.5s' or '2h45m'). Server should send heartbeats to prevent timing out")
 	health             = flag.Bool("health", false, "Run health check")
 	caFile             = flag.String("ca_file", "", "The file containing the CA root cert file")
 	serverAddr         = flag.String("server_addr", "localhost:10000", "The server address in the format of host:port")
@@ -37,7 +42,11 @@ func runPopenBasic(client protos.AioSubprocessClient) (int, error) {
 		Name: flag.Args()[0],
 		Args: flag.Args()[1:],
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	dur, err := time.ParseDuration(*timeout)
+	if err != nil {
+		return 0, err
+	}
+		ctx, cancel := spaghetr.WithWatchdog(context.Background(), dur)
 	defer cancel()
 	stream, err := client.PopenBasic(ctx, &args)
 	if err != nil {
@@ -45,24 +54,37 @@ func runPopenBasic(client protos.AioSubprocessClient) (int, error) {
 	}
 	bout := bufio.NewWriter(os.Stdout)
 	berr := bufio.NewWriter(os.Stderr)
+	running := true
+	vprint.Printf("Done chan: %v\n", ctx.Done())
+	for running {
+		select {
+		case <-ctx.Done():
+			vprint.Printf("ctx.Done\n")
+			running = false
+			break
+		default:
+			vprint.Printf("Done chan: %v\n", ctx.Done())
 
-	for {
-		msg, err := stream.Recv()
-		if err == io.EOF {
-			return 0, nil
+			msg, err := stream.Recv()
+			if err == io.EOF {
+				return 0, nil
+			}
+			if err != nil {
+				return 1, err
+			}
+			bout.Write(msg.Stdout)
+			berr.Write(msg.Stderr)
+			bout.Flush()
+			berr.Flush()
+			//fmt.Printf("+v%", msg)
+			if code := msg.GetReturncode(); code != nil {
+				return int(code.Val), nil
+			}
+			ctx.Feed()
 		}
-		if err != nil {
-			return 1, err
-		}
-		bout.Write(msg.Stdout)
-		berr.Write(msg.Stderr)
-		bout.Flush()
-		berr.Flush()
-		//fmt.Printf("+v%", msg)
-		if code := msg.GetReturncode(); code != nil {
-			return int(code.Val), nil
-		}
+
 	}
+	return 0, nil
 
 }
 
@@ -101,7 +123,7 @@ func main() {
 	}
 	code, err := runPopenBasic(client)
 	if err != nil {
-		panic(err)
+		fmt.Fprintf(os.Stderr, "Error occurred during client call:\n %v\n", err)
 	}
 	os.Exit(code)
 }

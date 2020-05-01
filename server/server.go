@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/xkortex/spaghetr/spaghetr"
 	"github.com/xkortex/spaghetr/spaghetr/protos"
+	"github.com/xkortex/vprint"
 	"google.golang.org/grpc"
 	"io"
 	"log"
@@ -52,7 +53,7 @@ func checkCommand(name string) error {
 	return fmt.Errorf("`%s` is not a whitelisted executable. Allowed: %v\n", name, flag.Args())
 }
 
-func ScannerChannel(r io.Reader, c chan<- []byte, wg sync.WaitGroup) {
+func ScannerChannel(r io.Reader, c chan<- []byte, wg *sync.WaitGroup) {
 	defer wg.Done()
 	wg.Add(1)
 	scanner := bufio.NewScanner(r)
@@ -63,6 +64,7 @@ func ScannerChannel(r io.Reader, c chan<- []byte, wg sync.WaitGroup) {
 		}
 		c <- scanner.Bytes()
 	}
+	vprint.Printf("Scanner finished: %v\n", r)
 }
 
 func (*AioSubprocessServer) GetStatus(ctx context.Context, req *protos.Empty) (*protos.StatusReply, error) {
@@ -83,6 +85,8 @@ func (*AioSubprocessServer) PopenBasic(req *protos.ArgsRequest, stream protos.Ai
 
 	var wg sync.WaitGroup
 	cmd := exec.Command(req.Name, req.Args...)
+	// https://medium.com/@felixge/killing-a-child-process-and-all-of-its-children-in-go-54079af94773
+	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
 	fmt.Printf("+%v\n", cmd)
 	stdout, _ := cmd.StdoutPipe()
 	stderr, _ := cmd.StderrPipe()
@@ -92,13 +96,14 @@ func (*AioSubprocessServer) PopenBasic(req *protos.ArgsRequest, stream protos.Ai
 	defer close(chOut)
 	defer close(chErr)
 
-	go ScannerChannel(stdout, chOut, wg)
-	go ScannerChannel(stderr, chErr, wg)
+	go ScannerChannel(stdout, chOut, &wg)
+	go ScannerChannel(stderr, chErr, &wg)
 
 	done := make(chan struct{})
 	go func() {
 		wg.Wait()
 		close(done)
+		vprint.Printf("done\n")
 	}()
 
 	cmd.Start()
@@ -111,7 +116,16 @@ func (*AioSubprocessServer) PopenBasic(req *protos.ArgsRequest, stream protos.Ai
 
 			select {
 			case <-done:
-				break
+				vprint.Print("Loop completed\n")
+				return
+			case <-stream.Context().Done():
+				vprint.Print("Context Done\n")
+				err := syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL)
+				if err != nil {
+					fmt.Fprintf(os.Stderr, "Error killing subprocess %d during " +
+						"context cancel: %v\n", cmd.Process.Pid, err)
+				}
+				return
 			case chunk_out = <-chOut:
 				buf_out.Write(chunk_out)
 				buf_out.Flush()
@@ -129,6 +143,7 @@ func (*AioSubprocessServer) PopenBasic(req *protos.ArgsRequest, stream protos.Ai
 			chunk_out = nil
 			chunk_err = nil
 		}
+
 	}()
 	fmt.Println("---")
 	if err := cmd.Wait(); err != nil {
